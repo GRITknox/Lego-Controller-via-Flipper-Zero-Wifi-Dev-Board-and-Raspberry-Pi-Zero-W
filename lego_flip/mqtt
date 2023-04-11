@@ -1,0 +1,50 @@
+--install required fmqtt and/or mqtt dependencies
+--this code uses the flipper d-pad to control the device
+
+-- d11_bulldozer_mqtt_controller.fscript
+
+local mqtt = require("mqtt")
+local wifi = require("wifi")
+
+-- Wi-Fi and MQTT settings
+local SSID = "your_ssid"
+local PASSWORD = "your_password"
+local MQTT_BROKER = "raspberrypi.local"
+local MQTT_TOPIC = "lego/d11_bulldozer"
+
+-- Connect to Wi-Fi
+print("Connecting to Wi-Fi...")
+wifi.connect(SSID, PASSWORD)
+
+-- Connect to MQTT broker
+print("Connecting to MQTT broker...")
+local client = mqtt.client(MQTT_BROKER, 1883)
+client:connect()
+
+-- Main function
+function main()
+    while true do
+        local key = buttons.wait()
+
+        if key == buttons.KEY_UP then
+            client:publish(MQTT_TOPIC, "forward")
+        elseif key == buttons.KEY_DOWN then
+            client:publish(MQTT_TOPIC, "backward")
+        elseif key == buttons.KEY_LEFT then
+            client:publish(MQTT_TOPIC, "left")
+        elseif key == buttons.KEY_RIGHT then
+            client:publish(MQTT_TOPIC, "right")
+        elseif key == buttons.KEY_OK then
+            client:publish(MQTT_TOPIC, "stop")
+        elseif key == buttons.KEY_1 then
+            client:publish(MQTT_TOPIC, "toggle_front_blade")
+        elseif key == buttons.KEY_2 then
+            client:publish(MQTT_TOPIC, "toggle_back_ripper")
+        elseif key == buttons.KEY_BACK then
+            break
+        end
+    end
+end
+
+-- Run the script
+main()
